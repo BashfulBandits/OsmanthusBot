@@ -13,6 +13,14 @@
       in {
         devShells.default = pkgs.mkShell {
           packages = [ pkgs.cargo pkgs.rustc pkgs.yt-dlp ];
+
+          shellHook = ''
+            if [ -f .env ]; then
+            set -a
+            source .env
+            set +a
+            fi
+          '';
         };
       });
 }

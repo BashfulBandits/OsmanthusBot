@@ -14,12 +14,25 @@
         devShells.default = pkgs.mkShell {
           packages = [ pkgs.cargo pkgs.rustc pkgs.yt-dlp ];
 
+          buildInputs = [
+            pkgs.openssl
+            pkgs.pkg-config
+          ];
+
+          nativeBuildInputs = [
+            pkgs.cmake
+          ];
+
           shellHook = ''
             if [ -f .env ]; then
             set -a
             source .env
             set +a
             fi
+
+
+            export LD_LIBRARY_PATH=${pkgs.openssl}/lib:$LD_LIBRARY_PATH
+            export LD_LIBRARY_PATH=${pkgs.pkg-config}/lib:$LD_LIBRARY_PATH
           '';
         };
       });

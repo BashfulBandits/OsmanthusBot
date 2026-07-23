@@ -17,6 +17,7 @@ impl EventHandler for Handler {
                 "download" => Some(commands::download::run(&command.data.options())),
                 "join" => Some(commands::join::run(&command.data.options(), &ctx, &interaction).await),
                 "leave" => Some(commands::leave::run(&command.data.options(), &ctx, &interaction).await),
+                "play" => Some(commands::play::run(&command.data.options(), &ctx, &interaction).await),
                 _ => Some("not implemented :(".to_string()),
             };
 
@@ -43,6 +44,7 @@ impl EventHandler for Handler {
             commands::download::register(),
             commands::join::register(),
             commands::leave::register(),
+            commands::play::register(),
         ]).await;
     }
 }

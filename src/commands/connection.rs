@@ -32,7 +32,7 @@ pub async fn join_call(ctx: &Context, interaction: &Interaction) -> CommandResul
         // Attach an event handler to see notifications of all track errors.
         //let mut handler = handler_lock.lock().await;
         //handler.add_global_event(TrackEvent::Error.into(), TrackErrorNotifier);
-        panic!("Join yay!")
+        println!("Join yay!")
     }
     
     Ok(())

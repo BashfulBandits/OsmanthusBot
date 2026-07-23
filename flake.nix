@@ -21,6 +21,7 @@
             pkgs.pkg-config
             pkgs.yt-dlp
             pkgs.rust-bin.stable.latest.default
+            pkgs.libopus
           ];
 
           nativeBuildInputs = [
@@ -37,6 +38,7 @@
 
             export LD_LIBRARY_PATH=${pkgs.openssl}/lib:$LD_LIBRARY_PATH
             export LD_LIBRARY_PATH=${pkgs.pkg-config}/lib:$LD_LIBRARY_PATH
+            export LD_LIBRARY_PATH=${pkgs.libopus}/lib:$LD_LIBRARY_PATH
           '';
         };
       });

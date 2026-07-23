@@ -1,3 +1,5 @@
 pub mod ping;
-pub mod join;
+pub mod connection;
 pub mod download;
+pub mod join;
+pub mod leave;

@@ -2,9 +2,19 @@ mod commands;
 
 use std::env;
 
+use serenity::all::prelude::TypeMapKey;
 use serenity::all::{Context, CreateInteractionResponse, CreateInteractionResponseMessage, EventHandler, GatewayIntents, GuildId, Interaction, Ready};
 use serenity::{Client, async_trait};
 use songbird::SerenityInit;
+
+use reqwest::Client as HttpClient;
+
+
+struct HttpKey;
+
+impl TypeMapKey for HttpKey {
+    type Value = HttpClient;
+}
 
 struct Handler;
 
@@ -66,6 +76,7 @@ async fn main() {
         Client::builder(&token, intents)
         .event_handler(Handler)
         .register_songbird()
+        .type_map_insert::<HttpKey>(HttpClient::new())
         .await.expect("Err creating client");
 
     // Start listening for events by starting a single shard

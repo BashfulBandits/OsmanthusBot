@@ -23,11 +23,17 @@ impl EventHandler for Handler {
     async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
         if let Interaction::Command(ref command) = interaction {
             let content = match command.data.name.as_str() {
-                "ping" => Some(commands::ping::run(&command.data.options())),
+                "ping" => Some(commands::ping::run(&command.data.options())), // Should all return
+                                                                              // CommandRessul i think
                 "download" => Some(commands::download::run(&command.data.options())),
                 "join" => Some(commands::join::run(&command.data.options(), &ctx, &interaction).await),
                 "leave" => Some(commands::leave::run(&command.data.options(), &ctx, &interaction).await),
+
                 "play" => Some(commands::play::run(&command.data.options(), &ctx, &interaction).await),
+                "stop" => Some(commands::stop::run(&ctx, &interaction).await),
+                "skip" => Some(commands::skip::run(&ctx, &interaction).await),
+                "pause" => Some(commands::pause::run(&ctx, &interaction).await),
+                "resume" => Some(commands::resume::run(&ctx, &interaction).await),
                 _ => Some("not implemented :(".to_string()),
             };
 
@@ -55,6 +61,10 @@ impl EventHandler for Handler {
             commands::join::register(),
             commands::leave::register(),
             commands::play::register(),
+            commands::stop::register(),
+            commands::skip::register(),
+            commands::pause::register(),
+            commands::resume::register(),
         ]).await;
     }
 }

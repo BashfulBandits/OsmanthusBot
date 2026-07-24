@@ -7,3 +7,6 @@ A discord bot centerd around playing youtube videos
 - [ ] Audio Queue
 - [ ] Proper Audio Overlap Options
 - [ ] Per Server Configs
+- [ ] Playlist Queue
+- [ ] Playlist Overlap
+- [ ] Playback Speed Options

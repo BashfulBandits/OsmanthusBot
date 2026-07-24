@@ -2,17 +2,17 @@
 use serenity::all::{CommandOptionType, Context, CreateCommand, CreateCommandOption, Interaction, ResolvedOption, ResolvedValue, standard::CommandResult};
 use songbird::input::YoutubeDl;
 
-use crate::HttpKey;
+use crate::{HttpKey, commands::connection::join_call};
 
 
 pub async fn run(options: &[ResolvedOption<'_>], ctx: &Context, interaction: &Interaction) -> String {
     let guild_id = interaction.guild_id().unwrap();
+    let _ = join_call(ctx, interaction).await;
 
     let url = match options.first() {
         Some(ResolvedOption { value: ResolvedValue::String(url), .. }) => url.to_string(),
         _ => unreachable!(),
     };
-    println!("URL: {}", url);
 
     let http_client = {
         let data = ctx.data.read().await;
@@ -30,14 +30,14 @@ pub async fn run(options: &[ResolvedOption<'_>], ctx: &Context, interaction: &In
     if let Some(handler_lock) = manager.get(guild_id) {
         let mut handler = handler_lock.lock().await;
 
-        let src = YoutubeDl::new(http_client, url);
+        let src = YoutubeDl::new(http_client, url.clone());
 
-        let _ = handler.play_input(src.into());
+        handler.enqueue_input(src.into()).await;
     } else {
         println!("Bot not in a voice call for this guild");
     }
 
-    "Playing".to_string()
+    format!("Now Playing: {}", url)
 }
 
 pub fn register() -> CreateCommand {

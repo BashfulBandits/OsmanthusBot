@@ -1,6 +1,8 @@
 use serenity::all::standard::CommandResult;
 use serenity::all::{CommandInteraction, CommandOptionType, Context, CreateCommand, CreateCommandOption, GuildId, Interaction, ResolvedValue};
 
+use crate::HttpKey;
+
 pub async fn join_call(ctx: &Context, interaction: &Interaction) -> CommandResult {
     let guild_id = interaction.guild_id().unwrap();
     let user_id = interaction.clone().into_command().unwrap().user.id;
@@ -48,11 +50,11 @@ pub async fn leave_call(ctx: &Context, interaction: &Interaction) -> CommandResu
 
     if manager.get(guild_id).is_none() {
         println!("Not currently in a voice channel");
-        return Ok(());
+        //let _ = interaction.as_command().unwrap().channel_id.say(&ctx.http, "OsBot is not currently in a voice call").await;
+        return Err("Not in call".into());
     }
 
     manager.leave(guild_id).await?;
-    println!("Left voice channel!");
 
     Ok(())
 }

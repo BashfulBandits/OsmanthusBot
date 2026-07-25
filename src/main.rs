@@ -6,6 +6,7 @@ use std::sync::Arc;
 use serenity::all::prelude::TypeMapKey;
 use serenity::all::{ChannelId, Context, CreateInteractionResponse, CreateInteractionResponseMessage, EventHandler, GatewayIntents, GuildId, Http, Interaction, Ready};
 use serenity::{Client, async_trait};
+use songbird::input::AuxMetadata;
 use songbird::{Event, EventContext, SerenityInit};
 use songbird::events::{EventHandler as SongbirdEventHandler};
 
@@ -94,6 +95,7 @@ impl SongbirdEventHandler for SongEndNotifier {
 
 #[tokio::main]
 async fn main() {
+
     // Login with a bot token from the environment
     let token = env::var("DISCORD_TOKEN").expect("Expected a token in the environment");
 
@@ -109,7 +111,8 @@ async fn main() {
         Client::builder(&token, intents)
         .event_handler(Handler)
         .register_songbird()
-        .type_map_insert::<HttpKey>(HttpClient::new())
+        .type_map_insert::<HttpKey>(HttpClient::new()) // Add a queue data thing here
+                                                                     // too
         .await.expect("Err creating client");
 
     // Start listening for events by starting a single shard

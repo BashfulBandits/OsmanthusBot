@@ -41,6 +41,7 @@ pub async fn run(options: &[ResolvedOption<'_>], ctx: &Context, interaction: &In
                 http: ctx.http.clone(),
             },
         );
+        println!("queue: {:?}", handler.queue());
     } else {
         println!("Bot not in a voice call for this guild");
     }

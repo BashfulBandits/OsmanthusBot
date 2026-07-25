@@ -7,7 +7,7 @@ pub async fn run(ctx: &Context, interaction: &Interaction) -> String {
     if let Some(handler_lock) = manager.get(guild_id) {
         let handler = handler_lock.lock().await;
         handler.queue().pause();
-        "Skipped".to_string()
+        "Paused".to_string()
     } else {
         "Not in a voice channel".to_string()
     }

@@ -1,7 +1,7 @@
 use serenity::all::standard::CommandResult;
 use serenity::all::{CommandInteraction, CommandOptionType, Context, CreateCommand, CreateCommandOption, GuildId, Interaction, ResolvedValue};
 
-use crate::HttpKey;
+//use crate::HttpKey;
 
 pub async fn join_call(ctx: &Context, interaction: &Interaction) -> CommandResult {
     let guild_id = interaction.guild_id().unwrap();

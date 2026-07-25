@@ -1,11 +1,13 @@
 mod commands;
 
 use std::env;
+use std::sync::Arc;
 
 use serenity::all::prelude::TypeMapKey;
-use serenity::all::{Context, CreateInteractionResponse, CreateInteractionResponseMessage, EventHandler, GatewayIntents, GuildId, Interaction, Ready};
+use serenity::all::{ChannelId, Context, CreateInteractionResponse, CreateInteractionResponseMessage, EventHandler, GatewayIntents, GuildId, Http, Interaction, Ready};
 use serenity::{Client, async_trait};
-use songbird::SerenityInit;
+use songbird::{Event, EventContext, SerenityInit};
+use songbird::events::{EventHandler as SongbirdEventHandler};
 
 use reqwest::Client as HttpClient;
 
@@ -63,6 +65,32 @@ impl EventHandler for Handler {
         ]).await;
     }
 }
+
+
+struct SongEndNotifier {
+    guild_id: GuildId,
+    channel_id: ChannelId,
+    http: Arc<Http>
+}
+
+#[async_trait]
+impl SongbirdEventHandler for SongEndNotifier {
+    async fn act(&self, ctx: &EventContext<'_>) -> Option<Event> {
+        if let EventContext::Track(track_list) = ctx {
+            for (state, handle) in track_list.iter() {
+                println!(
+                    "Track {:?} in guild {} finished with state {:?}",
+                    handle.uuid(),
+                    self.guild_id,
+                    state.playing
+                );
+                let _ = self.channel_id.say(&self.http, "Next song Playing").await;
+            }
+        }
+        None
+    }
+}
+
 
 #[tokio::main]
 async fn main() {

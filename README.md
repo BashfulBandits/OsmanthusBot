@@ -3,6 +3,7 @@ A discord bot centerd around playing youtube videos
 
 # TODO
 - [X] Basic Media Controls
+- [ ] /Help
 - [ ] Commands Respond with Status
 - [X] Audio Queue
 - [ ] Queue Monitoring

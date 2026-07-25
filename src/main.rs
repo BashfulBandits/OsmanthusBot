@@ -23,9 +23,6 @@ impl EventHandler for Handler {
     async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
         if let Interaction::Command(ref command) = interaction {
             let content = match command.data.name.as_str() {
-                "ping" => Some(commands::ping::run(&command.data.options())), // Should all return
-                                                                              // CommandRessul i think
-                "download" => Some(commands::download::run(&command.data.options())),
                 "join" => Some(commands::join::run(&command.data.options(), &ctx, &interaction).await),
                 "leave" => Some(commands::leave::run(&command.data.options(), &ctx, &interaction).await),
 
@@ -56,8 +53,6 @@ impl EventHandler for Handler {
         );
 
         let _commands = guild_id.set_commands(ctx.http, vec![
-            commands::ping::register(),
-            commands::download::register(),
             commands::join::register(),
             commands::leave::register(),
             commands::play::register(),

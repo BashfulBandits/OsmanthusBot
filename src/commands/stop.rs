@@ -1,5 +1,7 @@
 use serenity::all::{Context, CreateCommand, Interaction};
 
+use crate::commands::connection;
+
 pub async fn run(ctx: &Context, interaction: &Interaction) -> String {
     let guild_id = interaction.guild_id().unwrap();
     let manager = songbird::get(ctx).await.unwrap().clone();
@@ -7,6 +9,7 @@ pub async fn run(ctx: &Context, interaction: &Interaction) -> String {
     if let Some(handler_lock) = manager.get(guild_id) {
         let handler = handler_lock.lock().await;
         handler.queue().stop();
+        let _ = connection::leave_call(ctx, interaction).await;
         "Stopped and cleared the queue".to_string()
     } else {
         "Not in a voice channel".to_string()

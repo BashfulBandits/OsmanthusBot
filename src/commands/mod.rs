@@ -1,5 +1,3 @@
-pub mod connection;
-
 pub mod join;
 pub mod leave;
 

@@ -1,6 +1,6 @@
 use serenity::all::{Context, CreateCommand, Interaction};
 
-use crate::commands::connection;
+use crate::common::connection;
 
 pub async fn run(ctx: &Context, interaction: &Interaction) -> String {
     let guild_id = interaction.guild_id().unwrap();

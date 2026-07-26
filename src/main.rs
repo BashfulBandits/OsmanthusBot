@@ -1,23 +1,34 @@
 mod commands;
+mod common;
+mod events;
 
+use std::collections::HashMap;
 use std::env;
-use std::sync::Arc;
+use std::sync::{Arc, RwLock};
 
 use serenity::all::prelude::TypeMapKey;
 use serenity::all::{ChannelId, Context, CreateInteractionResponse, CreateInteractionResponseMessage, EventHandler, GatewayIntents, GuildId, Http, Interaction, Ready};
 use serenity::{Client, async_trait};
-use songbird::input::AuxMetadata;
 use songbird::{Event, EventContext, SerenityInit};
-use songbird::events::{EventHandler as SongbirdEventHandler};
 
 use reqwest::Client as HttpClient;
 
 
 struct HttpKey;
-
 impl TypeMapKey for HttpKey {
     type Value = HttpClient;
 }
+
+
+struct TrackMetadata {
+    title: String,
+}
+
+struct AuxMetadataKey;
+impl TypeMapKey for AuxMetadataKey {
+    type Value = Arc<RwLock<HashMap<GuildId, Vec<TrackMetadata>>>>;
+}
+
 
 struct Handler;
 
@@ -67,32 +78,6 @@ impl EventHandler for Handler {
     }
 }
 
-
-struct SongEndNotifier {
-    guild_id: GuildId,
-    channel_id: ChannelId,
-    http: Arc<Http>
-}
-
-#[async_trait]
-impl SongbirdEventHandler for SongEndNotifier {
-    async fn act(&self, ctx: &EventContext<'_>) -> Option<Event> {
-        if let EventContext::Track(track_list) = ctx {
-            for (state, handle) in track_list.iter() {
-                println!(
-                    "Track {:?} in guild {} finished with state {:?}",
-                    handle.uuid(),
-                    self.guild_id,
-                    state.playing
-                );
-                let _ = self.channel_id.say(&self.http, "Next song Playing").await;
-            }
-        }
-        None
-    }
-}
-
-
 #[tokio::main]
 async fn main() {
 
@@ -112,7 +97,7 @@ async fn main() {
         .event_handler(Handler)
         .register_songbird()
         .type_map_insert::<HttpKey>(HttpClient::new()) // Add a queue data thing here
-                                                                     // too
+        .type_map_insert::<AuxMetadataKey>(Arc::new(RwLock::new(HashMap::new()))) // Add a queue data thing here
         .await.expect("Err creating client");
 
     // Start listening for events by starting a single shard

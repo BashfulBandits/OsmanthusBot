@@ -1,6 +1,6 @@
 use serenity::all::{Context, CreateCommand, Interaction, ResolvedOption};
 
-use crate::commands::connection::join_call;
+use crate::common::connection::join_call;
 
 
 pub async fn run(options: &[ResolvedOption<'_>], ctx: &Context, interaction: &Interaction) -> String {

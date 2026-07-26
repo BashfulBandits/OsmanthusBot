@@ -1,13 +1,13 @@
 
-use serenity::all::{CommandOptionType, Context, CreateCommand, CreateCommandOption, Interaction, ResolvedOption, ResolvedValue, standard::CommandResult};
-use songbird::{Event, TrackEvent, input::YoutubeDl};
+use serenity::all::{CommandOptionType, Context, CreateCommand, CreateCommandOption, GuildId, Interaction, ResolvedOption, ResolvedValue, standard::CommandResult};
+use songbird::{Event, TrackEvent, input::{Compose, YoutubeDl}};
 
-use crate::{HttpKey, SongEndNotifier, commands::connection::join_call};
+use crate::{HttpKey, events::track_end::SongEndNotifier, TrackMetadata, common::{connection, queue}};
 
 
 pub async fn run(options: &[ResolvedOption<'_>], ctx: &Context, interaction: &Interaction) -> String {
     let guild_id = interaction.guild_id().unwrap();
-    let _ = join_call(ctx, interaction).await;
+    let _ = connection::join_call(ctx, interaction).await;
 
     let url = match options.first() {
         Some(ResolvedOption { value: ResolvedValue::String(url), .. }) => url.to_string(),
@@ -31,6 +31,7 @@ pub async fn run(options: &[ResolvedOption<'_>], ctx: &Context, interaction: &In
         let mut handler = handler_lock.lock().await;
 
         let src = YoutubeDl::new(http_client, url.clone());
+        queue::add_track_metadata(ctx, guild_id, TrackMetadata { title: src.clone().aux_metadata().await.expect("").title.expect("") }).await;
 
         let track_handle = handler.enqueue_input(src.into()).await;
         let _ = track_handle.add_event(

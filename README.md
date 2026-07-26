@@ -12,3 +12,4 @@ A discord bot centerd around playing youtube videos
 - [ ] Playlist Queue
 - [ ] Playlist Overlap
 - [ ] Playback Speed Options
+- [ ] Quick Responeses

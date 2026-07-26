@@ -2,7 +2,7 @@
 use serenity::all::{CommandOptionType, Context, CreateCommand, CreateCommandOption, GuildId, Interaction, ResolvedOption, ResolvedValue, standard::CommandResult};
 use songbird::{Event, TrackEvent, input::{Compose, YoutubeDl}};
 
-use crate::{HttpKey, events::track_end::SongEndNotifier, TrackMetadata, common::{connection, queue}};
+use crate::{HttpKey, TrackMetadata, common::{connection, queue}, events::{track_end::SongEndNotifier, track_start::SongStartNotifier}};
 
 
 pub async fn run(options: &[ResolvedOption<'_>], ctx: &Context, interaction: &Interaction) -> String {
@@ -39,9 +39,20 @@ pub async fn run(options: &[ResolvedOption<'_>], ctx: &Context, interaction: &In
         SongEndNotifier {
                 guild_id,
                 channel_id: interaction.as_command().unwrap().channel_id, // adjust to however you get this in your code
+                ctx: ctx.clone(),
                 http: ctx.http.clone(),
             },
         );
+        let _ = track_handle.add_event(
+            Event::Track(TrackEvent::Play),
+        SongStartNotifier {
+                guild_id,
+                channel_id: interaction.as_command().unwrap().channel_id, // adjust to however you get this in your code
+                ctx: ctx.clone(),
+                http: ctx.http.clone(),
+            },
+        );
+
         println!("queue: {:?}", handler.queue());
     } else {
         println!("Bot not in a voice call for this guild");

@@ -47,8 +47,10 @@ impl EventHandler for Handler {
                 "resume" => Some(commands::resume::run(&ctx, &interaction).await),
                 _ => Some("not implemented :(".to_string()),
             };
+            println!("Pre Some() Content: {:?}\n", content);
 
             if let Some(content) = content {
+                println!("In Some() Content: {:?}\n", content);
                 let data = CreateInteractionResponseMessage::new().content(content);
                 let builder = CreateInteractionResponse::Message(data);
                 if let Err(why) = command.create_response(ctx.http, builder).await {

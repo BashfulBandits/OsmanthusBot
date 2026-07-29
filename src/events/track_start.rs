@@ -27,7 +27,10 @@ impl SongbirdEventHandler for SongStartNotifier {
                     state.playing
                 );
                 let track_metadata = get_track_metadata(&self.ctx, &self.guild_id).await;
-                let _ = self.channel_id.say(&self.http, format!("Playing: {}", track_metadata.title)).await;
+                let _ = self.channel_id.say(&self.http, format!("Playing: {}", track_metadata.first().unwrap().title)).await;
+                if let Some(next_track) = track_metadata.get(1) {
+                    let _ = self.channel_id.say(&self.http, format!("Nextup: {}", next_track.title)).await;
+                }
             }
         }
         None

@@ -25,6 +25,9 @@ impl SongbirdEventHandler for SongEndNotifier {
                     self.guild_id,
                     state.playing
                 );
+
+                queue::remove_first_track_metadata(&self.ctx, self.guild_id).await;
+
                 //let _ = self.channel_id.say(&self.http, "Next song Playing").await;
                 let manager = songbird::get(&self.ctx)
                     .await
@@ -35,8 +38,6 @@ impl SongbirdEventHandler for SongEndNotifier {
                     let handler = handler_lock.lock().await;
                     if handler.queue().is_empty() {
                         let _ = self.channel_id.say(&self.http, "Queue empty").await;
-                    } else {
-                        queue::remove_track_metadata(&self.ctx, self.guild_id).await;
                     }
                 };
             }

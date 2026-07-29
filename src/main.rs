@@ -20,6 +20,7 @@ impl TypeMapKey for HttpKey {
 }
 
 
+#[derive(Clone)]
 struct TrackMetadata {
     title: String,
 }

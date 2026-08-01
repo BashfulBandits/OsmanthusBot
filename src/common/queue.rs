@@ -36,7 +36,7 @@ pub async fn get_track_metadata(ctx: &Context, guild_id: &GuildId) -> Vec<TrackM
     drop(data); // release the outer lock before taking the inner one
                             
     let metadata = {
-        let map = map_lock.read().expect("IDk");
+        let map = map_lock.read().expect("IDK");
         map.get(guild_id)
             .unwrap()
             .clone()

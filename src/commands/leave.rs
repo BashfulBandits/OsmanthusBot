@@ -1,14 +1,11 @@
 
-use serenity::all::{Context, CreateCommand, Interaction, ResolvedOption};
+use serenity::all::{Context, CreateCommand, Interaction};
 
-use crate::common::connection::leave_call;
+use crate::{common::connection::leave_call, results::{CommandError, CommandSuccess}};
 
 
-pub async fn run(options: &[ResolvedOption<'_>], ctx: &Context, interaction: &Interaction) -> String {
-    match leave_call(ctx, interaction).await {
-        Ok(_) => "OsBot has left the call".to_string(),
-        Err(_) => "OsBot is not in a call".to_string()
-    }
+pub async fn run(ctx: &Context, interaction: &Interaction) -> Result<CommandSuccess, CommandError> {
+    leave_call(ctx, interaction).await
 }
 
 pub fn register() -> CreateCommand {

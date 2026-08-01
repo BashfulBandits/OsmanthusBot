@@ -1,8 +1,8 @@
 use serenity::all::{Context, CreateCommand, Interaction};
 
-use crate::common::{connection, queue};
+use crate::{common::{connection, queue}, results::{CommandError, CommandSuccess}};
 
-pub async fn run(ctx: &Context, interaction: &Interaction) -> String {
+pub async fn run(ctx: &Context, interaction: &Interaction) -> Result<CommandSuccess, CommandError> {
     let guild_id = interaction.guild_id().unwrap();
     let manager = songbird::get(ctx).await.unwrap().clone();
 
@@ -12,9 +12,9 @@ pub async fn run(ctx: &Context, interaction: &Interaction) -> String {
         let _ = connection::leave_call(ctx, interaction).await;
         queue::remove_all_track_metadata(ctx, guild_id).await;
         // clear queue data
-        "Stopped and cleared the queue".to_string()
+        Ok(CommandSuccess::Stop)
     } else {
-        "Not in a voice channel".to_string()
+        Err(CommandError::GetGuild)
     }
 }
 

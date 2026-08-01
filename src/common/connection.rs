@@ -1,9 +1,11 @@
 use serenity::all::standard::CommandResult;
 use serenity::all::{CommandInteraction, CommandOptionType, Context, CreateCommand, CreateCommandOption, GuildId, Interaction, ResolvedValue};
 
+use crate::results::{CommandError, CommandSuccess};
+
 //use crate::HttpKey;
 
-pub async fn join_call(ctx: &Context, interaction: &Interaction) -> CommandResult {
+pub async fn join_call(ctx: &Context, interaction: &Interaction) -> Result<CommandSuccess, CommandError> {
     let guild_id = interaction.guild_id().unwrap();
     let user_id = interaction.clone().into_command().unwrap().user.id;
 
@@ -21,7 +23,7 @@ pub async fn join_call(ctx: &Context, interaction: &Interaction) -> CommandResul
             //check_msg(msg.reply(ctx, "Not in a voice channel").await);
             println!("Not in a voice call");
 
-            return Ok(());
+            return Err(CommandError::NotInCall);
         },
     };
 
@@ -37,10 +39,10 @@ pub async fn join_call(ctx: &Context, interaction: &Interaction) -> CommandResul
         println!("Join yay!")
     }
     
-    Ok(())
+    Ok(CommandSuccess::Join)
 }
 
-pub async fn leave_call(ctx: &Context, interaction: &Interaction) -> CommandResult {
+pub async fn leave_call(ctx: &Context, interaction: &Interaction) -> Result<CommandSuccess, CommandError> {
     let guild_id = interaction.guild_id().unwrap();
 
     let manager = songbird::get(ctx)
@@ -51,10 +53,10 @@ pub async fn leave_call(ctx: &Context, interaction: &Interaction) -> CommandResu
     if manager.get(guild_id).is_none() {
         println!("Not currently in a voice channel");
         //let _ = interaction.as_command().unwrap().channel_id.say(&ctx.http, "OsBot is not currently in a voice call").await;
-        return Err("Not in call".into());
+        return Err(CommandError::NotInCall);
     }
 
-    manager.leave(guild_id).await?;
+    manager.leave(guild_id).await.unwrap();
 
-    Ok(())
+    Ok(CommandSuccess::Leave)
 }

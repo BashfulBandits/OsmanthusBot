@@ -1,11 +1,11 @@
 
 use std::sync::Arc;
 
-use serenity::{all::{ChannelId, Context, GuildId, Http}, async_trait};
+use serenity::{all::{ChannelId, Context, CreateMessage, GuildId, Http}, async_trait};
 use songbird::{Event, events::EventHandler as SongbirdEventHandler};
 use songbird::{EventContext};
 
-use crate::{AuxMetadataKey, common::queue::{self, get_track_metadata}};
+use crate::{AuxMetadataKey, common::{embeds, queue::{self, get_track_metadata}}};
 
 
 pub struct SongStartNotifier {
@@ -26,10 +26,8 @@ impl SongbirdEventHandler for SongStartNotifier {
                     self.guild_id,
                     state.playing
                 );
-                let track_metadata = get_track_metadata(&self.ctx, &self.guild_id).await;
-                let _ = self.channel_id.say(&self.http, format!("Playing: {}", track_metadata.first().unwrap().title)).await;
-                if let Some(next_track) = track_metadata.get(1) {
-                    let _ = self.channel_id.say(&self.http, format!("Nextup: {}", next_track.title)).await;
+                if let Err(why) = self.channel_id.send_message(&self.http, CreateMessage::new().add_embed(embeds::queue_embed(&self.ctx, &self.guild_id).await)).await {
+                    println!("Error on queue embed message send in track start event: {why}")
                 }
             }
         }

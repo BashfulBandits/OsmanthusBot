@@ -1,15 +1,17 @@
 use serenity::all::{Context, CreateCommand, Interaction};
 
-pub async fn run(ctx: &Context, interaction: &Interaction) -> String {
+use crate::results::{CommandError, CommandSuccess};
+
+pub async fn run(ctx: &Context, interaction: &Interaction) -> Result<CommandSuccess, CommandError> {
     let guild_id = interaction.guild_id().unwrap();
     let manager = songbird::get(ctx).await.unwrap().clone();
 
     if let Some(handler_lock) = manager.get(guild_id) {
         let handler = handler_lock.lock().await;
         let _ = handler.queue().skip();
-        "Skipped".to_string()
+        Ok(CommandSuccess::Skip)
     } else {
-        "Not in a voice channel".to_string()
+        return Err(CommandError::GetGuild);
     }
 }
 

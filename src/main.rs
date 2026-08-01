@@ -1,17 +1,21 @@
 mod commands;
 mod common;
 mod events;
+mod results;
 
 use std::collections::HashMap;
 use std::env;
 use std::sync::{Arc, RwLock};
 
 use serenity::all::prelude::TypeMapKey;
-use serenity::all::{ChannelId, Context, CreateInteractionResponse, CreateInteractionResponseMessage, EventHandler, GatewayIntents, GuildId, Http, Interaction, Ready};
+use serenity::all::{ChannelId, Context, CreateEmbed, CreateInteractionResponse, CreateInteractionResponseFollowup, CreateInteractionResponseMessage, EditInteractionResponse, EventHandler, GatewayIntents, GuildId, Http, Interaction, MessageFlags, Ready};
 use serenity::{Client, async_trait};
 use songbird::{Event, EventContext, SerenityInit};
 
 use reqwest::Client as HttpClient;
+
+use crate::common::embeds::{self, thinking_embed};
+use crate::results::{CommandError, CommandSuccess};
 
 
 struct HttpKey;
@@ -23,6 +27,7 @@ impl TypeMapKey for HttpKey {
 #[derive(Clone)]
 struct TrackMetadata {
     title: String,
+    duration: std::time::Duration,
 }
 
 struct AuxMetadataKey;
@@ -37,26 +42,43 @@ struct Handler;
 impl EventHandler for Handler {
     async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
         if let Interaction::Command(ref command) = interaction {
-            let content = match command.data.name.as_str() {
-                "join" => Some(commands::join::run(&command.data.options(), &ctx, &interaction).await),
-                "leave" => Some(commands::leave::run(&command.data.options(), &ctx, &interaction).await),
+            let data = CreateInteractionResponseMessage::new().embed(thinking_embed().await);
+            let builder = CreateInteractionResponse::Message(data);
+                
+            if let Err(why) = command.create_response(&ctx.http, builder).await {
+                println!("Cannot respond to slash command: {why}");
+            }
+
+            let command_result = match command.data.name.as_str() {
+                "join" => Some(commands::join::run(&ctx, &interaction).await),
+                "leave" => Some(commands::leave::run(&ctx, &interaction).await),
 
                 "play" => Some(commands::play::run(&command.data.options(), &ctx, &interaction).await),
                 "stop" => Some(commands::stop::run(&ctx, &interaction).await),
                 "skip" => Some(commands::skip::run(&ctx, &interaction).await),
                 "pause" => Some(commands::pause::run(&ctx, &interaction).await),
                 "resume" => Some(commands::resume::run(&ctx, &interaction).await),
-                _ => Some("not implemented :(".to_string()),
+                _ => Some(Err(CommandError::CommandNotImplemented)),
             };
-            println!("Pre Some() Content: {:?}\n", content);
 
-            if let Some(content) = content {
-                println!("In Some() Content: {:?}\n", content);
-                let data = CreateInteractionResponseMessage::new().content(content);
-                let builder = CreateInteractionResponse::Message(data);
-                if let Err(why) = command.create_response(ctx.http, builder).await {
-                    println!("Cannot respond to slash command: {why}");
-                }
+            let guild_id = interaction.guild_id().unwrap();
+
+            let followup_response: EditInteractionResponse = match command_result {
+                Some(Ok(CommandSuccess::Join))   => { EditInteractionResponse::new().add_embed(embeds::added_to_queue_embed().await) }
+                Some(Ok(CommandSuccess::Leave))  => { EditInteractionResponse::new().add_embed(embeds::queue_embed(&ctx, &guild_id).await) }
+                Some(Ok(CommandSuccess::Pause))  => { EditInteractionResponse::new().add_embed(embeds::queue_embed(&ctx, &guild_id).await) }
+                Some(Ok(CommandSuccess::Play))   => { EditInteractionResponse::new().add_embed(embeds::queue_embed(&ctx, &guild_id).await) }
+                Some(Ok(CommandSuccess::Resume)) => { EditInteractionResponse::new().add_embed(embeds::queue_embed(&ctx, &guild_id).await) }
+                Some(Ok(CommandSuccess::Skip))   => { EditInteractionResponse::new().add_embed(embeds::queue_embed(&ctx, &guild_id).await) }
+                Some(Ok(CommandSuccess::Stop))   => { EditInteractionResponse::new().add_embed(embeds::queue_embed(&ctx, &guild_id).await) }
+
+                Some(Err(err))     => { EditInteractionResponse::new().add_embed(embeds::error_embed(err).await) }
+
+                None => { println!("How????"); EditInteractionResponse::new().add_embed(embeds::error_embed(CommandError::Other).await)}
+            };
+            
+            if let Err(why) = command.edit_response(&ctx.http, followup_response).await {
+                println!("Cannot edit response: {why}");
             }
         }
     }

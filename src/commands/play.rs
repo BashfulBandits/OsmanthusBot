@@ -1,11 +1,11 @@
 
-use serenity::all::{CommandOptionType, Context, CreateCommand, CreateCommandOption, GuildId, Interaction, ResolvedOption, ResolvedValue, standard::CommandResult};
+use serenity::all::{CommandOptionType, Context, CreateCommand, CreateCommandOption, GuildId, Interaction, ResolvedOption, ResolvedValue};
 use songbird::{Event, TrackEvent, input::{Compose, YoutubeDl}};
 
-use crate::{HttpKey, TrackMetadata, common::{connection, queue}, events::{track_end::SongEndNotifier, track_start::SongStartNotifier}};
+use crate::{HttpKey, TrackMetadata, common::{connection, queue}, events::{track_end::SongEndNotifier, track_start::SongStartNotifier}, results::{CommandError, CommandSuccess}};
 
 
-pub async fn run(options: &[ResolvedOption<'_>], ctx: &Context, interaction: &Interaction) -> String {
+pub async fn run(options: &[ResolvedOption<'_>], ctx: &Context, interaction: &Interaction) -> Result<CommandSuccess, CommandError> {
     let guild_id = interaction.guild_id().unwrap();
     let _ = connection::join_call(ctx, interaction).await;
 
@@ -31,7 +31,11 @@ pub async fn run(options: &[ResolvedOption<'_>], ctx: &Context, interaction: &In
         let mut handler = handler_lock.lock().await;
 
         let src = YoutubeDl::new(http_client, url.clone());
-        queue::add_track_metadata(ctx, guild_id, TrackMetadata { title: src.clone().aux_metadata().await.expect("").title.expect("") }).await;
+
+        queue::add_track_metadata(ctx, guild_id, TrackMetadata {
+            title: src.clone().aux_metadata().await.unwrap().title.unwrap(),
+            duration: src.clone().aux_metadata().await.unwrap().duration.unwrap(),
+        }).await;
 
         let track_handle = handler.enqueue_input(src.into()).await;
         let _ = track_handle.add_event(
@@ -55,10 +59,10 @@ pub async fn run(options: &[ResolvedOption<'_>], ctx: &Context, interaction: &In
 
         println!("queue: {:?}", handler.queue());
     } else {
-        println!("Bot not in a voice call for this guild");
+        return Err(CommandError::NotInCall);
     }
 
-    format!("Now Playing: {}", url)
+    Ok(CommandSuccess::Play)
 }
 
 pub fn register() -> CreateCommand {

@@ -1,10 +1,12 @@
+use std::fmt::format;
+
 use serenity::all::{Color, Context, CreateEmbed, GuildId};
 
 use crate::{common::queue::get_track_metadata, results::CommandError};
 
 pub static ERROR_COLOR: Color = Color::from_rgb(160, 50, 50);
 pub static OKAY_COLOR: Color = Color::from_rgb(50, 200, 50);
-pub static OSMANTHUS_COLOR: Color = Color::from_rgb(160, 100, 110);
+pub static OSMANTHUS_COLOR: Color = Color::from_rgb(130, 110, 110);
 
 pub async fn thinking_embed() -> CreateEmbed {
     let thinking_embed = CreateEmbed::new().description("Thinking...");
@@ -29,18 +31,34 @@ pub async fn error_embed(error: CommandError) -> CreateEmbed {
 
 pub async fn queue_embed(ctx: &Context, guild_id: &GuildId) -> CreateEmbed {
     let track_metadata = get_track_metadata(ctx, guild_id).await;
-    
+
     if let Some(first_track_metadata) = track_metadata.first() {
         let track_duration = first_track_metadata.duration.as_secs();
         let minutes = track_duration / 60;
-        let seconds = track_duration % 60;
+        let seconds_int = track_duration % 60;
+        let seconds = if seconds_int == 0 { String::from("00") } else if seconds_int < 10 { format!("0{seconds_int}") } else { seconds_int.to_string() };
 
-        CreateEmbed::new()
-            .title(format!("Now Playing:   '{}'   |   {}:{}", first_track_metadata.title, minutes, seconds))
-            .field("Queue", "IDK", true)
-            .colour(OSMANTHUS_COLOR)
+        let mut embed = CreateEmbed::new()
+            .title("Now Playing:")
+            .description(format!("'{}'", first_track_metadata.title))
+            .field("Creator", first_track_metadata.creator.to_string(), true)
+            .field("Duration", format!("{minutes}:{seconds}"), true)
+            .colour(OSMANTHUS_COLOR);
+
+        if track_metadata.len() > 1 {
+            let next_up = track_metadata.iter()
+                .skip(1)
+                .enumerate()
+                .map(|(i, t)| format!("{} - {}\n", i + 1, t.title))
+                .collect::<String>();
+            embed = embed.field("Next Up", next_up, false);
+        }
+
+        embed
     } else {
         CreateEmbed::new()
+            .title("Queue is Empty!")
+            .description("Play Another Song!")
     }
 }
 

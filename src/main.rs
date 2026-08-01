@@ -8,9 +8,9 @@ use std::env;
 use std::sync::{Arc, RwLock};
 
 use serenity::all::prelude::TypeMapKey;
-use serenity::all::{ChannelId, Context, CreateEmbed, CreateInteractionResponse, CreateInteractionResponseFollowup, CreateInteractionResponseMessage, EditInteractionResponse, EventHandler, GatewayIntents, GuildId, Http, Interaction, MessageFlags, Ready};
+use serenity::all::{Context, CreateInteractionResponse, CreateInteractionResponseMessage, EditInteractionResponse, EventHandler, GatewayIntents, GuildId, Interaction, Ready};
 use serenity::{Client, async_trait};
-use songbird::{Event, EventContext, SerenityInit};
+use songbird::SerenityInit;
 
 use reqwest::Client as HttpClient;
 
@@ -27,6 +27,7 @@ impl TypeMapKey for HttpKey {
 #[derive(Clone)]
 struct TrackMetadata {
     title: String,
+    creator: String,
     duration: std::time::Duration,
 }
 

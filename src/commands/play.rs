@@ -34,6 +34,7 @@ pub async fn run(options: &[ResolvedOption<'_>], ctx: &Context, interaction: &In
 
         queue::add_track_metadata(ctx, guild_id, TrackMetadata {
             title: src.clone().aux_metadata().await.unwrap().title.unwrap(),
+            creator: src.clone().aux_metadata().await.unwrap().channel.unwrap(),
             duration: src.clone().aux_metadata().await.unwrap().duration.unwrap(),
         }).await;
 

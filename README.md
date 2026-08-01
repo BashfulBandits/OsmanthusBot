@@ -4,7 +4,7 @@ A discord bot centerd around playing youtube videos
 # TODO
 - [X] Basic Media Controls
 - [ ] /Help
-- [ ] Commands Respond with Status
+- [X] Commands Respond with Status
 - [X] Audio Queue
 - [ ] Queue Monitoring
 - [ ] Proper Audio Overlap Options
@@ -12,4 +12,4 @@ A discord bot centerd around playing youtube videos
 - [ ] Playlist Queue
 - [ ] Playlist Overlap
 - [ ] Playback Speed Options
-- [ ] Quick Responeses
+- [X] Quick Responeses

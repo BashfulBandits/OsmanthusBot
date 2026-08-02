@@ -9,59 +9,19 @@ use crate::{HttpKey, TrackMetadata, common::{connection, queue}, events::{track_
 
 pub async fn run(options: &[ResolvedOption<'_>], ctx: &Context, interaction: &Interaction) -> Result<CommandSuccess, CommandError> {
     let guild_id = interaction.guild_id().unwrap();
-    let _ = connection::join_call(ctx, interaction).await;
+    let channel_id = interaction.as_command().unwrap().channel_id;
+
+    connection::join_call(ctx, interaction).await?;
 
     let url = match options.first() {
         Some(ResolvedOption { value: ResolvedValue::String(url), .. }) => url.to_string(),
         _ => unreachable!(),
     };
 
-    let http_client = {
-        let data = ctx.data.read().await;
-        data.get::<HttpKey>()
-            .cloned()
-            .expect("Guaranteed to exist in the typemap.")
-    };
-
-    let manager = songbird::get(ctx)
-        .await
-        .expect("Songbird Voice client placed in at initialisation.")
-        .clone();
-
-
-    if let Some(handler_lock) = manager.get(guild_id) {
-        let mut handler = handler_lock.lock().await;
-
-        let mut src = YoutubeDl::new(http_client, url.clone());
-
-        queue::add_track_metadata(ctx, guild_id, src.aux_metadata().await).await?;
-
-        let track_handle = handler.enqueue_input(src.into()).await;
-        let _ = track_handle.add_event(
-            Event::Track(TrackEvent::End),
-        SongEndNotifier {
-                guild_id,
-                channel_id: interaction.as_command().unwrap().channel_id, // adjust to however you get this in your code
-                ctx: ctx.clone(),
-                http: ctx.http.clone(),
-            },
-        );
-        let _ = track_handle.add_event(
-            Event::Track(TrackEvent::Play),
-        SongStartNotifier {
-                guild_id,
-                channel_id: interaction.as_command().unwrap().channel_id, // adjust to however you get this in your code
-                ctx: ctx.clone(),
-                http: ctx.http.clone(),
-            },
-        );
-
-        println!("queue: {:?}", handler.queue());
-    } else {
-        return Err(CommandError::BotNotInCall);
+    match queue::add_track_to_queue(ctx, &guild_id, &channel_id, url).await {
+        Ok(_) => Ok(CommandSuccess::Play),
+        Err(err) => Err(err),
     }
-
-    Ok(CommandSuccess::Play)
 }
 
 pub fn register() -> CreateCommand {

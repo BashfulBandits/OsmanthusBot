@@ -23,4 +23,6 @@ pub enum CommandSuccess {
     Help,
 
     Aura,
+    
+    AddedToQueue
 }

@@ -79,6 +79,8 @@ impl EventHandler for Handler {
                 Some(Ok(CommandSuccess::Help))   => { EditInteractionResponse::new().add_embed(embeds::help_embed().await) }
                 Some(Ok(CommandSuccess::Aura))   => { EditInteractionResponse::new().add_embed(embeds::aura_embed().await) }
 
+                Some(Ok(_)) => { println!("Don't return a normal Okay up to main"); EditInteractionResponse::new().add_embed(embeds::error_embed(CommandError::Other).await) }
+
                 Some(Err(err))     => { EditInteractionResponse::new().add_embed(embeds::error_embed(err).await) }
 
                 None => { println!("How????"); EditInteractionResponse::new().add_embed(embeds::error_embed(CommandError::Other).await)}

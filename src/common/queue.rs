@@ -1,9 +1,9 @@
 use std::{error::Error, time::Duration};
 
-use serenity::all::{Context, GuildId};
-use songbird::input::{AudioStreamError, AuxMetadata};
+use serenity::all::{ChannelId, Context, GuildId, Interaction};
+use songbird::{Event, TrackEvent, input::{AudioStreamError, AuxMetadata, Compose, YoutubeDl}};
 
-use crate::{AuxMetadataKey, TrackMetadata, results::{CommandError, CommandSuccess}};
+use crate::{AuxMetadataKey, HttpKey, TrackMetadata, common::queue, events::{track_end::SongEndNotifier, track_start::SongStartNotifier}, results::{CommandError, CommandSuccess}};
 
 
 pub async fn add_track_metadata(ctx: &Context, guild_id: GuildId, metadata: Result<AuxMetadata, AudioStreamError>) -> Result<(), CommandError> {
@@ -66,4 +66,52 @@ pub async fn get_track_metadata(ctx: &Context, guild_id: &GuildId) -> Vec<TrackM
     };
 
     metadata.to_vec()
+}
+
+pub async fn add_track_to_queue(ctx: &Context, guild_id: &GuildId, channel_id: &ChannelId, url: String) -> Result<CommandSuccess, CommandError> {
+    let http_client = {
+        let data = ctx.data.read().await;
+        data.get::<HttpKey>()
+            .cloned()
+            .expect("Guaranteed to exist in the typemap.")
+    };
+
+    let manager = songbird::get(ctx)
+        .await
+        .expect("Songbird Voice client placed in at initialisation.")
+        .clone();
+
+
+    if let Some(handler_lock) = manager.get(*guild_id) {
+        let mut handler = handler_lock.lock().await;
+
+        let mut src = YoutubeDl::new(http_client, url.clone());
+
+        queue::add_track_metadata(ctx, *guild_id, src.aux_metadata().await).await?;
+
+        let track_handle = handler.enqueue_input(src.into()).await;
+        let _ = track_handle.add_event(
+            Event::Track(TrackEvent::End),
+        SongEndNotifier {
+                guild_id: *guild_id,
+                channel_id: *channel_id,
+                ctx: ctx.clone(),
+                http: ctx.http.clone(),
+            },
+        );
+        let _ = track_handle.add_event(
+            Event::Track(TrackEvent::Play),
+        SongStartNotifier {
+                guild_id: *guild_id,
+                channel_id: *channel_id,
+                ctx: ctx.clone(),
+                http: ctx.http.clone(),
+            },
+        );
+
+        println!("queue: {:?}", handler.queue());
+        Ok(CommandSuccess::AddedToQueue)
+    } else {
+        Err(CommandError::BotNotInCall)
+    }
 }

@@ -12,4 +12,5 @@ A discord bot centerd around playing youtube videos
 - [ ] Playlist Queue
 - [ ] Playlist Overlap
 - [ ] Playback Speed Options
+- [ ] 'Aura' Command
 - [X] Quick Responeses

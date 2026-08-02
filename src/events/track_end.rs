@@ -1,10 +1,10 @@
 use std::sync::Arc;
 
-use serenity::{all::{ChannelId, Context, GuildId, Http}, async_trait};
+use serenity::{all::{ChannelId, Context, CreateMessage, GuildId, Http}, async_trait};
 use songbird::{Event, events::EventHandler as SongbirdEventHandler};
 use songbird::{EventContext};
 
-use crate::common::queue;
+use crate::common::{embeds, queue};
 
 
 pub struct SongEndNotifier {
@@ -37,7 +37,7 @@ impl SongbirdEventHandler for SongEndNotifier {
                 if let Some(handler_lock) = manager.get(self.guild_id) {
                     let handler = handler_lock.lock().await;
                     if handler.queue().is_empty() {
-                        let _ = self.channel_id.say(&self.http, "Queue empty").await;
+                        let _ = self.channel_id.send_message(&self.http, CreateMessage::new().add_embed(embeds::queue_embed(&self.ctx, &self.guild_id).await)).await;
                     }
                 };
             }

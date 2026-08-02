@@ -29,6 +29,7 @@ struct TrackMetadata {
     title: String,
     creator: String,
     duration: std::time::Duration,
+    url: String,
 }
 
 struct AuxMetadataKey;
@@ -65,10 +66,10 @@ impl EventHandler for Handler {
             let guild_id = interaction.guild_id().unwrap();
 
             let followup_response: EditInteractionResponse = match command_result {
-                Some(Ok(CommandSuccess::Join))   => { EditInteractionResponse::new().add_embed(embeds::added_to_queue_embed().await) }
+                Some(Ok(CommandSuccess::Join))   => { EditInteractionResponse::new().add_embed(embeds::queue_embed(&ctx, &guild_id).await) }
                 Some(Ok(CommandSuccess::Leave))  => { EditInteractionResponse::new().add_embed(embeds::queue_embed(&ctx, &guild_id).await) }
                 Some(Ok(CommandSuccess::Pause))  => { EditInteractionResponse::new().add_embed(embeds::queue_embed(&ctx, &guild_id).await) }
-                Some(Ok(CommandSuccess::Play))   => { EditInteractionResponse::new().add_embed(embeds::queue_embed(&ctx, &guild_id).await) }
+                Some(Ok(CommandSuccess::Play))   => { EditInteractionResponse::new().add_embed(embeds::added_to_queue_embed(&ctx, &guild_id).await) }
                 Some(Ok(CommandSuccess::Resume)) => { EditInteractionResponse::new().add_embed(embeds::queue_embed(&ctx, &guild_id).await) }
                 Some(Ok(CommandSuccess::Skip))   => { EditInteractionResponse::new().add_embed(embeds::queue_embed(&ctx, &guild_id).await) }
                 Some(Ok(CommandSuccess::Stop))   => { EditInteractionResponse::new().add_embed(embeds::queue_embed(&ctx, &guild_id).await) }
@@ -85,22 +86,28 @@ impl EventHandler for Handler {
     }
 
     async fn ready(&self, ctx: Context, _ready: Ready) {
-        let guild_id = GuildId::new(
-            env::var("TEST_GUILD_ID")
+        let guild_ids = vec![
+            GuildId::new(env::var("TEST_GUILD_ID")
                 .expect("Expected TEST_GUILD_ID in environment")
                 .parse()
-                .expect("TEST_GUILD_ID must be an integer")
-        );
+                .expect("TEST_GUILD_ID must be an integer")),
+            GuildId::new(env::var("TEST_GUILD_ID_2")
+                .expect("Expected TEST_GUILD_ID_2 in environment")
+                .parse()
+                .expect("TEST_GUILD_ID_2 must be an integer")),
+        ];
 
-        let _commands = guild_id.set_commands(ctx.http, vec![
-            commands::join::register(),
-            commands::leave::register(),
-            commands::play::register(),
-            commands::stop::register(),
-            commands::skip::register(),
-            commands::pause::register(),
-            commands::resume::register(),
-        ]).await;
+        for guild_id in guild_ids {
+            let _ = guild_id.set_commands(&ctx.http, vec![
+                commands::join::register(),
+                commands::leave::register(),
+                commands::play::register(),
+                commands::stop::register(),
+                commands::skip::register(),
+                commands::pause::register(),
+                commands::resume::register(),
+            ]).await;
+        }
     }
 }
 

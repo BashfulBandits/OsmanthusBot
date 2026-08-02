@@ -42,21 +42,24 @@ pub async fn join_call(ctx: &Context, interaction: &Interaction) -> Result<Comma
     Ok(CommandSuccess::Join)
 }
 
-pub async fn leave_call(ctx: &Context, interaction: &Interaction) -> Result<CommandSuccess, CommandError> {
-    let guild_id = interaction.guild_id().unwrap();
-
+pub async fn leave_call(ctx: &Context, guild_id: GuildId) -> Result<CommandSuccess, CommandError> {
+    println!("Leave call function");
     let manager = songbird::get(ctx)
         .await
         .expect("Songbird Voice client placed in at initialisation.")
         .clone();
 
+    println!("past manager");
     if manager.get(guild_id).is_none() {
+        println!("get id fail in leave");
         println!("Not currently in a voice channel");
         //let _ = interaction.as_command().unwrap().channel_id.say(&ctx.http, "OsBot is not currently in a voice call").await;
-        return Err(CommandError::NotInCall);
+        return Err(CommandError::BotNotInCall);
     }
 
-    manager.leave(guild_id).await.unwrap();
+    println!("befor leave");
+    if manager.leave(guild_id).await.is_err() { println!("Error"); return Err(CommandError::Other); } else { println!("no freaking clue how this would happen") }
+    println!("after leave");
 
     Ok(CommandSuccess::Leave)
 }

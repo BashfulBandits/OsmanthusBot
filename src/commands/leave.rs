@@ -5,7 +5,13 @@ use crate::{common::connection::leave_call, results::{CommandError, CommandSucce
 
 
 pub async fn run(ctx: &Context, interaction: &Interaction) -> Result<CommandSuccess, CommandError> {
-    leave_call(ctx, interaction).await
+    let guild_id = match interaction.guild_id() {
+        Some(id) => id,
+        None => return Err(CommandError::GetGuild),
+    };
+
+    println!("Leave call");
+    leave_call(ctx, guild_id).await
 }
 
 pub fn register() -> CreateCommand {

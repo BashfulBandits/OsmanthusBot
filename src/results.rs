@@ -3,6 +3,7 @@ pub enum CommandError {
     AgeRestriction,
     InvalidURL,
     NotInCall,
+    BotNotInCall,
     GetGuild,
     
     CommandNotImplemented,

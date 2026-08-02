@@ -1,4 +1,6 @@
 
+use std::time::Duration;
+
 use serenity::all::{CommandOptionType, Context, CreateCommand, CreateCommandOption, GuildId, Interaction, ResolvedOption, ResolvedValue};
 use songbird::{Event, TrackEvent, input::{Compose, YoutubeDl}};
 
@@ -30,13 +32,9 @@ pub async fn run(options: &[ResolvedOption<'_>], ctx: &Context, interaction: &In
     if let Some(handler_lock) = manager.get(guild_id) {
         let mut handler = handler_lock.lock().await;
 
-        let src = YoutubeDl::new(http_client, url.clone());
+        let mut src = YoutubeDl::new(http_client, url.clone());
 
-        queue::add_track_metadata(ctx, guild_id, TrackMetadata {
-            title: src.clone().aux_metadata().await.unwrap().title.unwrap(),
-            creator: src.clone().aux_metadata().await.unwrap().channel.unwrap(),
-            duration: src.clone().aux_metadata().await.unwrap().duration.unwrap(),
-        }).await;
+        queue::add_track_metadata(ctx, guild_id, src.aux_metadata().await).await?;
 
         let track_handle = handler.enqueue_input(src.into()).await;
         let _ = track_handle.add_event(
@@ -60,7 +58,7 @@ pub async fn run(options: &[ResolvedOption<'_>], ctx: &Context, interaction: &In
 
         println!("queue: {:?}", handler.queue());
     } else {
-        return Err(CommandError::NotInCall);
+        return Err(CommandError::BotNotInCall);
     }
 
     Ok(CommandSuccess::Play)

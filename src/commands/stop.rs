@@ -24,7 +24,7 @@ pub async fn run(ctx: &Context, interaction: &Interaction) -> Result<CommandSucc
         
         Ok(CommandSuccess::Stop)
     } else {
-        Err(CommandError::GetGuild)
+        Err(CommandError::BotNotInCall)
     }
 }
 

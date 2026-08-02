@@ -82,23 +82,38 @@ pub async fn help_embed() -> CreateEmbed {
 
 pub async fn pause_embed() -> CreateEmbed {
     CreateEmbed::new()
+        .colour(OKAY_COLOR)
+        .title("Paused")
 }
 pub async fn resume_embed() -> CreateEmbed {
     CreateEmbed::new()
+        .colour(OKAY_COLOR)
+        .title("Resuming")
 }
 pub async fn join_embed() -> CreateEmbed {
     CreateEmbed::new()
+        .colour(OKAY_COLOR)
+        .title("OsmanthusBot has Joined the Call")
 }
 pub async fn leave_embed() -> CreateEmbed {
     CreateEmbed::new()
+        .colour(OKAY_COLOR)
+        .title("OsmanthusBot has Left the Call")
 }
 pub async fn skip_embed() -> CreateEmbed {
     CreateEmbed::new()
+        .colour(OKAY_COLOR)
+        .title("Skipped!")
 }
 pub async fn stop_embed() -> CreateEmbed {
     CreateEmbed::new()
+        .colour(OKAY_COLOR)
+        .title("Stopped")
+        .description("Queue cleared without issue")
 }
 
 pub async fn aura_embed() -> CreateEmbed {
     CreateEmbed::new()
+        .colour(OKAY_COLOR)
+        .title("Tiki~ Tiki~ Tiki~")
 }

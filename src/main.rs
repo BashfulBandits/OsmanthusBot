@@ -69,13 +69,13 @@ impl EventHandler for Handler {
             let guild_id = interaction.guild_id().unwrap();
 
             let followup_response: EditInteractionResponse = match command_result {
-                Some(Ok(CommandSuccess::Join))   => { EditInteractionResponse::new().add_embed(embeds::queue_embed(&ctx, &guild_id).await) }
-                Some(Ok(CommandSuccess::Leave))  => { EditInteractionResponse::new().add_embed(embeds::queue_embed(&ctx, &guild_id).await) }
-                Some(Ok(CommandSuccess::Pause))  => { EditInteractionResponse::new().add_embed(embeds::queue_embed(&ctx, &guild_id).await) }
+                Some(Ok(CommandSuccess::Join))   => { EditInteractionResponse::new().add_embed(embeds::join_embed().await) }
+                Some(Ok(CommandSuccess::Leave))  => { EditInteractionResponse::new().add_embed(embeds::leave_embed().await) }
+                Some(Ok(CommandSuccess::Pause))  => { EditInteractionResponse::new().add_embed(embeds::pause_embed().await) }
                 Some(Ok(CommandSuccess::Play))   => { EditInteractionResponse::new().add_embed(embeds::added_to_queue_embed(&ctx, &guild_id).await) }
-                Some(Ok(CommandSuccess::Resume)) => { EditInteractionResponse::new().add_embed(embeds::queue_embed(&ctx, &guild_id).await) }
-                Some(Ok(CommandSuccess::Skip))   => { EditInteractionResponse::new().add_embed(embeds::queue_embed(&ctx, &guild_id).await) }
-                Some(Ok(CommandSuccess::Stop))   => { EditInteractionResponse::new().add_embed(embeds::queue_embed(&ctx, &guild_id).await) }
+                Some(Ok(CommandSuccess::Resume)) => { EditInteractionResponse::new().add_embed(embeds::resume_embed().await) }
+                Some(Ok(CommandSuccess::Skip))   => { EditInteractionResponse::new().add_embed(embeds::skip_embed().await) }
+                Some(Ok(CommandSuccess::Stop))   => { EditInteractionResponse::new().add_embed(embeds::stop_embed().await) }
                 Some(Ok(CommandSuccess::Help))   => { EditInteractionResponse::new().add_embed(embeds::help_embed().await) }
                 Some(Ok(CommandSuccess::Aura))   => { EditInteractionResponse::new().add_embed(embeds::aura_embed().await) }
 

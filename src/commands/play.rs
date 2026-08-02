@@ -4,7 +4,7 @@ use std::time::Duration;
 use serenity::all::{CommandOptionType, Context, CreateCommand, CreateCommandOption, GuildId, Interaction, ResolvedOption, ResolvedValue};
 use songbird::{Event, TrackEvent, input::{Compose, YoutubeDl}};
 
-use crate::{HttpKey, TrackMetadata, common::{connection, queue}, events::{track_end::SongEndNotifier, track_start::SongStartNotifier}, results::{CommandError, CommandSuccess}};
+use crate::{common::{connection, queue}, results::{CommandError, CommandSuccess}};
 
 
 pub async fn run(options: &[ResolvedOption<'_>], ctx: &Context, interaction: &Interaction) -> Result<CommandSuccess, CommandError> {

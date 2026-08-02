@@ -1,13 +1,17 @@
 
-use serenity::all::{Context, CreateCommand, Interaction, ResolvedOption};
+use serenity::all::{Context, CreateCommand, Interaction};
 
-use crate::commands::connection::leave_call;
+use crate::{common::connection::leave_call, results::{CommandError, CommandSuccess}};
 
 
-pub async fn run(options: &[ResolvedOption<'_>], ctx: &Context, interaction: &Interaction) -> String {
-    println!("{:?}", leave_call(ctx, interaction).await);
+pub async fn run(ctx: &Context, interaction: &Interaction) -> Result<CommandSuccess, CommandError> {
+    let guild_id = match interaction.guild_id() {
+        Some(id) => id,
+        None => return Err(CommandError::GetGuild),
+    };
 
-    format!("you've been pinged!")
+    println!("Leave call");
+    leave_call(ctx, guild_id).await
 }
 
 pub fn register() -> CreateCommand {

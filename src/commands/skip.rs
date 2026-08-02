@@ -1,0 +1,20 @@
+use serenity::all::{Context, CreateCommand, Interaction};
+
+use crate::results::{CommandError, CommandSuccess};
+
+pub async fn run(ctx: &Context, interaction: &Interaction) -> Result<CommandSuccess, CommandError> {
+    let guild_id = interaction.guild_id().unwrap();
+    let manager = songbird::get(ctx).await.unwrap().clone();
+
+    if let Some(handler_lock) = manager.get(guild_id) {
+        let handler = handler_lock.lock().await;
+        let _ = handler.queue().skip();
+        Ok(CommandSuccess::Skip)
+    } else {
+        return Err(CommandError::GetGuild);
+    }
+}
+
+pub fn register() -> CreateCommand {
+    CreateCommand::new("skip").description("Skips the current track")
+}

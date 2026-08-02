@@ -1,43 +1,24 @@
 
-use serenity::all::{CommandOptionType, Context, CreateCommand, CreateCommandOption, Interaction, ResolvedOption, ResolvedValue, standard::CommandResult};
-use songbird::input::YoutubeDl;
+use serenity::all::{CommandOptionType, Context, CreateCommand, CreateCommandOption, Interaction, ResolvedOption, ResolvedValue};
 
-use crate::HttpKey;
+use crate::{common::{connection, queue}, results::{CommandError, CommandSuccess}};
 
 
-pub async fn run(options: &[ResolvedOption<'_>], ctx: &Context, interaction: &Interaction) -> String {
+pub async fn run(options: &[ResolvedOption<'_>], ctx: &Context, interaction: &Interaction) -> Result<CommandSuccess, CommandError> {
     let guild_id = interaction.guild_id().unwrap();
+    let channel_id = interaction.as_command().unwrap().channel_id;
+
+    connection::join_call(ctx, interaction).await?;
 
     let url = match options.first() {
         Some(ResolvedOption { value: ResolvedValue::String(url), .. }) => url.to_string(),
         _ => unreachable!(),
     };
-    println!("URL: {}", url);
 
-    let http_client = {
-        let data = ctx.data.read().await;
-        data.get::<HttpKey>()
-            .cloned()
-            .expect("Guaranteed to exist in the typemap.")
-    };
-
-    let manager = songbird::get(ctx)
-        .await
-        .expect("Songbird Voice client placed in at initialisation.")
-        .clone();
-
-
-    if let Some(handler_lock) = manager.get(guild_id) {
-        let mut handler = handler_lock.lock().await;
-
-        let src = YoutubeDl::new(http_client, url);
-
-        let _ = handler.play_input(src.into());
-    } else {
-        println!("Bot not in a voice call for this guild");
+    match queue::add_track_to_queue(ctx, &guild_id, &channel_id, url).await {
+        Ok(_) => Ok(CommandSuccess::Play),
+        Err(err) => Err(err),
     }
-
-    "Playing".to_string()
 }
 
 pub fn register() -> CreateCommand {

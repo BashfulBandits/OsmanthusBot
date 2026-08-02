@@ -70,5 +70,35 @@ pub async fn added_to_queue_embed(ctx: &Context, guild_id: &GuildId) -> CreateEm
     CreateEmbed::new()
         .colour(OKAY_COLOR)
         .title("Added to Queue".to_string())
-        .description(queue_metadata.last().unwrap().title.clone())
+        .description(format!("[{}]({})", queue_metadata.last().unwrap().title.clone(), queue_metadata.last().unwrap().url))
+}
+
+pub async fn help_embed() -> CreateEmbed {
+    CreateEmbed::new()
+        .colour(OKAY_COLOR)
+        .title("Help!")
+        .description("For now just run /play. I don't feel like writing an in depth help, sorry.")
+}
+
+pub async fn pause_embed() -> CreateEmbed {
+    CreateEmbed::new()
+}
+pub async fn resume_embed() -> CreateEmbed {
+    CreateEmbed::new()
+}
+pub async fn join_embed() -> CreateEmbed {
+    CreateEmbed::new()
+}
+pub async fn leave_embed() -> CreateEmbed {
+    CreateEmbed::new()
+}
+pub async fn skip_embed() -> CreateEmbed {
+    CreateEmbed::new()
+}
+pub async fn stop_embed() -> CreateEmbed {
+    CreateEmbed::new()
+}
+
+pub async fn aura_embed() -> CreateEmbed {
+    CreateEmbed::new()
 }

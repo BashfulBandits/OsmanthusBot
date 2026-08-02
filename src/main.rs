@@ -60,6 +60,9 @@ impl EventHandler for Handler {
                 "skip" => Some(commands::skip::run(&ctx, &interaction).await),
                 "pause" => Some(commands::pause::run(&ctx, &interaction).await),
                 "resume" => Some(commands::resume::run(&ctx, &interaction).await),
+
+                "help" => Some(commands::help::run(&ctx, &interaction).await),
+                "aura" => Some(commands::aura::run(&ctx, &interaction).await),
                 _ => Some(Err(CommandError::CommandNotImplemented)),
             };
 
@@ -73,6 +76,8 @@ impl EventHandler for Handler {
                 Some(Ok(CommandSuccess::Resume)) => { EditInteractionResponse::new().add_embed(embeds::queue_embed(&ctx, &guild_id).await) }
                 Some(Ok(CommandSuccess::Skip))   => { EditInteractionResponse::new().add_embed(embeds::queue_embed(&ctx, &guild_id).await) }
                 Some(Ok(CommandSuccess::Stop))   => { EditInteractionResponse::new().add_embed(embeds::queue_embed(&ctx, &guild_id).await) }
+                Some(Ok(CommandSuccess::Help))   => { EditInteractionResponse::new().add_embed(embeds::help_embed().await) }
+                Some(Ok(CommandSuccess::Aura))   => { EditInteractionResponse::new().add_embed(embeds::aura_embed().await) }
 
                 Some(Err(err))     => { EditInteractionResponse::new().add_embed(embeds::error_embed(err).await) }
 
@@ -106,6 +111,8 @@ impl EventHandler for Handler {
                 commands::skip::register(),
                 commands::pause::register(),
                 commands::resume::register(),
+                commands::help::register(),
+                commands::aura::register(),
             ]).await;
         }
     }

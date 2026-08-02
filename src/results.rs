@@ -13,9 +13,14 @@ pub enum CommandError {
 pub enum CommandSuccess {
     Join,
     Leave,
+
     Play,
     Pause,
     Resume,
     Skip,
     Stop,
+
+    Help,
+
+    Aura,
 }

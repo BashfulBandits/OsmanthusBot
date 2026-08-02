@@ -19,8 +19,8 @@ pub async fn run(ctx: &Context, interaction: &Interaction) -> Result<CommandSucc
         queue::remove_all_track_metadata(ctx, guild_id).await;
         println!("Queue remove");
 
-        connection::leave_call(ctx, guild_id).await?;
-        println!("Leave call");
+        //connection::leave_call(ctx, guild_id).await?;
+        //println!("Leave call");
         
         Ok(CommandSuccess::Stop)
     } else {

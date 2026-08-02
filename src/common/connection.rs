@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use serenity::all::standard::CommandResult;
 use serenity::all::{CommandInteraction, CommandOptionType, Context, CreateCommand, CreateCommandOption, GuildId, Interaction, ResolvedValue};
 
@@ -57,9 +59,19 @@ pub async fn leave_call(ctx: &Context, guild_id: GuildId) -> Result<CommandSucce
         return Err(CommandError::BotNotInCall);
     }
 
-    println!("befor leave");
-    if manager.leave(guild_id).await.is_err() { println!("Error"); return Err(CommandError::Other); } else { println!("no freaking clue how this would happen") }
-    println!("after leave");
+    //println!("befor leave");
+    //if manager.remove(guild_id).await.is_err() { println!("Error"); return Err(CommandError::Other); } else { println!("no freaking clue how this would happen") }
+    //let leave_result = manager.leave(guild_id).await;
+    //if leave_result.is_err() { println!("remove error") }
+    //println!("after leave");
+    match tokio::time::timeout(Duration::from_secs(5), manager.leave(guild_id)).await {
+        Ok(Ok(())) => { /* clean leave */ }
+        Ok(Err(e)) => println!("leave error: {e}"),
+        Err(_) => {
+            println!("leave timed out, forcing removal");
+            let _ = manager.remove(guild_id).await; // force-drops local state even if Discord never confirmed
+        }
+    }
 
     Ok(CommandSuccess::Leave)
 }

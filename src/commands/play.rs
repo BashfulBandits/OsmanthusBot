@@ -1,6 +1,5 @@
 
-use serenity::all::{CommandOptionType, Context, CreateCommand, CreateCommandOption, GuildId, Interaction, ResolvedOption, ResolvedValue};
-use songbird::{Event, TrackEvent, input::{Compose, YoutubeDl}};
+use serenity::all::{CommandOptionType, Context, CreateCommand, CreateCommandOption, Interaction, ResolvedOption, ResolvedValue};
 
 use crate::{common::{connection, queue}, results::{CommandError, CommandSuccess}};
 

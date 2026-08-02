@@ -1,10 +1,10 @@
 
 use serenity::all::{Context, CreateCommand, Interaction};
 
-use crate::{common::connection::join_call, results::{CommandError, CommandSuccess}};
+use crate::results::{CommandError, CommandSuccess};
 
 
-pub async fn run(ctx: &Context, interaction: &Interaction) -> Result<CommandSuccess, CommandError> {
+pub async fn run(_ctx: &Context, _interaction: &Interaction) -> Result<CommandSuccess, CommandError> {
     println!("help");
     Ok(CommandSuccess::Help)
 }

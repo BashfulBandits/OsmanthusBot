@@ -1,6 +1,6 @@
-use std::{error::Error, time::Duration};
+use std::time::Duration;
 
-use serenity::all::{ChannelId, Context, GuildId, Interaction};
+use serenity::all::{ChannelId, Context, GuildId};
 use songbird::{Event, TrackEvent, input::{AudioStreamError, AuxMetadata, Compose, YoutubeDl}};
 
 use crate::{AuxMetadataKey, HttpKey, TrackMetadata, common::queue, events::{track_end::SongEndNotifier, track_start::SongStartNotifier}, results::{CommandError, CommandSuccess}};

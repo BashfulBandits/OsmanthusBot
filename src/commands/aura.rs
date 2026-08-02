@@ -13,7 +13,7 @@ pub async fn run(ctx: &Context, interaction: &Interaction) -> Result<CommandSucc
     let url = "https://www.youtube.com/watch?v=eIb1rSiTKOc".to_string();
 
     match queue::add_track_to_queue(ctx, &guild_id, &channel_id, url).await {
-        Ok(_) => Ok(CommandSuccess::Play),
+        Ok(_) => Ok(CommandSuccess::Aura),
         Err(err) => Err(err),
     }
 }

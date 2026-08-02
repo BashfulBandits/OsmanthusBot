@@ -5,7 +5,7 @@ use serenity::{all::{ChannelId, Context, CreateMessage, GuildId, Http}, async_tr
 use songbird::{Event, events::EventHandler as SongbirdEventHandler};
 use songbird::{EventContext};
 
-use crate::{AuxMetadataKey, common::{embeds, queue::{self, get_track_metadata}}};
+use crate::common::embeds;
 
 
 pub struct SongStartNotifier {

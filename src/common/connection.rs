@@ -1,7 +1,6 @@
 use std::time::Duration;
 
-use serenity::all::standard::CommandResult;
-use serenity::all::{CommandInteraction, CommandOptionType, Context, CreateCommand, CreateCommandOption, GuildId, Interaction, ResolvedValue};
+use serenity::all::{Context, GuildId, Interaction};
 
 use crate::results::{CommandError, CommandSuccess};
 
@@ -34,7 +33,7 @@ pub async fn join_call(ctx: &Context, interaction: &Interaction) -> Result<Comma
         .expect("Songbird Voice client placed in at initialisation.")
         .clone();
 
-    if let Ok(handler_lock) = manager.join(guild_id, connect_to).await {
+    if let Ok(_handler_lock) = manager.join(guild_id, connect_to).await {
         // Attach an event handler to see notifications of all track errors.
         //let mut handler = handler_lock.lock().await;
         //handler.add_global_event(TrackEvent::Error.into(), TrackErrorNotifier);

@@ -1,4 +1,3 @@
-use std::fmt::format;
 
 use serenity::all::{Color, Context, CreateEmbed, GuildId};
 

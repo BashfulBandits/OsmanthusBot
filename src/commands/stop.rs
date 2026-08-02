@@ -1,6 +1,6 @@
 use serenity::all::{Context, CreateCommand, Interaction};
 
-use crate::{common::{connection, queue}, results::{CommandError, CommandSuccess}};
+use crate::{common::queue, results::{CommandError, CommandSuccess}};
 
 pub async fn run(ctx: &Context, interaction: &Interaction) -> Result<CommandSuccess, CommandError> {
     let guild_id = match interaction.guild_id() {

@@ -8,7 +8,7 @@ pub async fn run(ctx: &Context, interaction: &Interaction) -> Result<CommandSucc
     let guild_id = interaction.guild_id().unwrap();
     let channel_id = interaction.as_command().unwrap().channel_id;
 
-    connection::join_call(ctx, interaction).await?;
+    //connection::join_call(ctx, interaction).await?;
 
     let url = "https://www.youtube.com/watch?v=eIb1rSiTKOc".to_string();
 
